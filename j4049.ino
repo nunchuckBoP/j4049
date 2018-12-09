@@ -172,4 +172,12 @@ void loop() {
   Serial.print("JS2_X: ");
   Serial.print(JS2_X);
   Serial.print("  ");
+  Serial.print("SP1_CMD: ");
+  Serial.print(SP1_CMD);
+  Serial.print("SP2_CMD: ");
+  Serial.print(SP2_CMD);
+  Serial.print("SP3_CMD: ");
+  Serial.print(SP3_CMD);
+  Serial.print("SP4_CMD: ");
+  Serial.print(SP4_CMD);
 }
