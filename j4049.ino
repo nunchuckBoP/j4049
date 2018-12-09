@@ -21,11 +21,16 @@ int JS2_X;
 // speed output pins
 // not sure of the outputs yet,
 // so we will just put in place
-// holders
+// holders. These are pwm pins.
 int SP1 = 8;
 int SP2 = 9;
 int SP3 = 10;
 int SP4 = 11;
+
+int SP1_CMD = 0;
+int SP2_CMD = 0;
+int SP3_CMD = 0;
+int SP4_CMD = 0;
 
 // reverse pins
 // not too sure of these outputs
@@ -117,6 +122,7 @@ void loop() {
     
     // put the correct motor in
     // reverse
+    
   }
   else{
     STRIFE_RIGHT = 0;
@@ -124,6 +130,32 @@ void loop() {
     // put the correct motor in
     // forward
   }
+
+  if(STRIFE_RIGHT = 0 and STRIFE_LEFT = 0){
+
+    if(JS1_Y > 500){
+      SP1_CMD = scp(JS1_Y, 500, 1024, 0, 255);
+      SP3_CMD = scp(JS1_Y, 500, 1024, 0, 255);
+    }
+    else{
+      SP1_CMD = scp(JS1_Y, 500, 0, 0, 255);
+      SP3_CMD = scp(JS1_Y, 500, 0, 0, 255);
+    }
+    if(JS2_Y > 500){
+      SP2_CMD = scp(JS2_Y, 500, 1024, 0, 255);
+      SP4_CMD = scp(JS2_Y, 500, 1024, 0, 255);
+    }
+    else{
+      SP2_CMD = scp(JS2_Y, 500, 0, 0, 255);
+      SP4_CMD = scp(JS2_Y, 500, 0, 0, 255);      
+    }
+  }
+
+  // write the speed commands to the outputs
+  analogWrite(SP1, SP1_CMD);
+  analogWrite(SP2, SP2_CMD);
+  analogWrite(SP3, SP3_CMD);
+  analogWrite(SP4, SP4_CMD);
 
   // print some debug information on the serial
   // console at the end
