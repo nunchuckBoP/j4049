@@ -180,4 +180,7 @@ void loop() {
   Serial.print(SP3_CMD);
   Serial.print("SP4_CMD: ");
   Serial.print(SP4_CMD);
+
+  // end of the print line
+  Serial.println(" ");
 }
