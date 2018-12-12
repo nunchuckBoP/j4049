@@ -1,54 +1,59 @@
-
 #include <Wire.h>
 
+// ---------------------MOTORS---------------
+//        M208 - FRONT LEFT
+//        M308 - REAR LEFT
+//        M408 - FRONT RIGHT
+//        M508 - REAR RIGHT
+//-------------------------------------------
+
 // joystick pins
-//
-//PIN A0 - JS1 Y-AXIS
-//PIN A1 - JS2 X-AXIS
-//PIN A2 - JS2 Y-AXIS
-//PIN A3 - JS1 X-AXIS
-// THESE WERE TESTED BUT THEY 
-// SHOULD BE TESTED AGAIN
+//JS705 - LEFT
+//JS711 = RIGHT
+//PIN A0 - JS705 Y-AXIS
+//PIN A1 - JS711 X-AXIS
+//PIN A2 - JS711 Y-AXIS
+//PIN A3 - JS705 X-AXIS
 
-int JS1_Y_PIN = A0;
-int JS1_X_PIN = A3;
-int JS2_Y_PIN = A2;
-int JS2_X_PIN = A1;
-int JS1_Y;
-int JS1_X;
-int JS2_Y;
-int JS2_X;
+int JS705_Y_PIN = A0;
+int JS705_X_PIN = A3;
+int JS711_Y_PIN = A2;
+int JS711_X_PIN = A1;
+int JS705_Y;
+int JS705_X;
+int JS711_Y;
+int JS711_X;
 
-// speed output pins
-// not sure of the outputs yet,
-// so we will just put in place
-// holders. These are pwm pins.
-int SP1 = 8;
-int SP2 = 9;
-int SP3 = 10;
-int SP4 = 11;
+// SPEED REGISTERS OVER i2c
+// EACH MOTOR HAS THERE OWN SPEED
+// REGISTER
+#define MOTOR_I2C_ADDRESS = 0x2c;
+#define M208_SPEED_REGISTER = 0x00;
+#define M308_SPEED_REGISTER = 0x01;
+#define M408_SPEED_REGISTER = 0x02;
+#define M508_SPEED_REGISTER = 0x03;
 
-int SP1_CMD = 0;
-int SP2_CMD = 0;
-int SP3_CMD = 0;
-int SP4_CMD = 0;
+// SPEED COMMAND INTEGERS
+// THESE ARE SPEEDS IN PERCENTAGES
+float M208_SPEED = 0.0;
+float M308_SPEED = 0.0;
+float M408_SPEED = 0.0;
+float M508_SPEED = 0.0;
 
-// reverse pins
-// not too sure of these outputs
-// yet so we will just put in 
-// some placeholders
-int REV1 = 22;
-int REV2 = 24;
-int REV3 = 26;
-int REV4 = 28;
+// reverse pins. These are
+// tested pins.
+int M208_REV_PIN = 22;
+int M308_REV_PIN = 24;
+int M408_REV_PIN = 26;
+int M508_REV_PIN = 28;
 
-// strife speed in percentage
-int STRIFE_SPEED = 50;
+// strafe speed in percentage
+int STRAFE_SPEED = 50;
 
 // variable to detect if the 
 // kart is in strife mode.
-bool STRIFE_LEFT = 0;
-bool STRIFE_RIGHT = 0;
+bool STRAFE_LEFT = 0;
+bool STRAFE_RIGHT = 0;
 
 void setup() {
   // put your setup code here, to run once:
@@ -92,10 +97,10 @@ void loop() {
   // put your main code here, to run repeatedly:
 
   // firstly, we will read the joystick values.
-  JS1_Y = analogRead(JS1_Y_PIN);
-  JS1_X = analogRead(JS1_X_PIN);
-  JS2_Y = analogRead(JS2_Y_PIN);
-  JS2_X = analogRead(JS2_X_PIN);
+  JS705_Y = analogRead(JS705_Y_PIN);
+  JS705_X = analogRead(JS705_X_PIN);
+  JS711_Y = analogRead(JS711_Y_PIN);
+  JS711_X = analogRead(JS711_X_PIN);
 
   // the joysticks at center center are at 500, 500
   // roughly. Less than 500 is backwards
@@ -106,57 +111,63 @@ void loop() {
   // determine if we are in strife mode
   // when both joysticks x-values are certain
   // critirea
-  if(JS1_X < 100 and JS2_X < 100){
-    STRIFE_LEFT = 1;
+  if(JS705_X < 100 and JS711_X < 100){
+    STRAFE_LEFT = 1;
 
     // put the correct motor in
     // reverse
   }
   else{
-    STRIFE_LEFT = 0;
+    STRAFE_LEFT = 0;
     
     // put the correct motor in
     // forward
   }
-  if(JS1_X > 850 and JS2_X > 850){
-    STRIFE_RIGHT = 1;
+  if(JS705_X > 850 and JS711_X > 850){
+    STRAFE_RIGHT = 1;
     
     // put the correct motor in
     // reverse
     
   }
   else{
-    STRIFE_RIGHT = 0;
+    STRAFE_RIGHT = 0;
     
     // put the correct motor in
     // forward
   }
 
-  if(STRIFE_RIGHT = 0 and STRIFE_LEFT = 0){
+  if(STRAFE_RIGHT = 0 and STRAFE_LEFT = 0){
 
-    if(JS1_Y > 500){
-      SP1_CMD = scp(JS1_Y, 500, 1024, 0, 255);
-      SP3_CMD = scp(JS1_Y, 500, 1024, 0, 255);
+    if(JS705_Y > 500){
+      M208_SPEED = scp(JS705_Y, 500, 1024, 256, 0);
+      M308_SPEED = scp(JS705_Y, 500, 1024, 256, 0);
+      digitalWrite(M208_REV_PIN , LOW);
+      digitalWrite(M308_REV_PIN , LOW);
     }
     else{
-      SP1_CMD = scp(JS1_Y, 500, 0, 0, 255);
-      SP3_CMD = scp(JS1_Y, 500, 0, 0, 255);
+      M208_SPEED = scp(JS1_Y, 500, 0, 256, 0);
+      M308_SPEED = scp(JS1_Y, 500, 0, 256, 0);
+      digitalWrite(M208_REV_PIN , HIGH);
+      digitalWrite(M308_REV_PIN , HIGH);
     }
     if(JS2_Y > 500){
-      SP2_CMD = scp(JS2_Y, 500, 1024, 0, 255);
-      SP4_CMD = scp(JS2_Y, 500, 1024, 0, 255);
+      M408_SPEED = scp(JS2_Y, 500, 1024, 256, 0);
+      M508_SPEED = scp(JS2_Y, 500, 1024, 256, 0);
+      digitalWrite(M408_REV_PIN , LOW);
+      digitalWrite(M508_REV_PIN , LOW);
     }
     else{
-      SP2_CMD = scp(JS2_Y, 500, 0, 0, 255);
-      SP4_CMD = scp(JS2_Y, 500, 0, 0, 255);      
+      M408_SPEED = scp(JS2_Y, 500, 0, 256, 0);
+      M508_SPEED = scp(JS2_Y, 500, 0, 256, 0);
+      digitalWrite(M408_REV_PIN , HIGH);
+      digitalWrite(M508_REV_PIN , HIGH);      
     }
   }
 
-  // write the speed commands to the outputs
-  analogWrite(SP1, SP1_CMD);
-  analogWrite(SP2, SP2_CMD);
-  analogWrite(SP3, SP3_CMD);
-  analogWrite(SP4, SP4_CMD);
+  // write the speed commands to the i2c speed
+  // controller board (digital pot)
+  
 
   // print some debug information on the serial
   // console at the end
