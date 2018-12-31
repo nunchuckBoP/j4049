@@ -18,6 +18,11 @@ int JS711_Y_PIN = A3;
 int JS711_X = 0;
 int JS711_Y = 0;
 
+// ----------------------------
+// STRAFE SPEED 
+// ----------------------------
+int strafe_speed = 64;
+
 // -----------------------------
 // Joy stick thresholds
 // -----------------------------
@@ -86,7 +91,6 @@ bool M508_R_EN_VAL = false;
 // strafe booleans
 bool strafe_left = false;
 bool strafe_right = false;
-int strafe_speed = 128;
 
 void setup() {
   // put your setup code here, to run once:
@@ -204,22 +208,22 @@ void disable_motor(int motor_number){
 void send_motor_speed(int motor_number, bool reverse, int motor_speed_int){
   if(motor_number == 208){
     if(reverse){
-      analogWrite(M208_R_PWM, 0);
-      analogWrite(M208_L_PWM, motor_speed_int);
-    }
-    else{
       analogWrite(M208_L_PWM, 0);
       analogWrite(M208_R_PWM, motor_speed_int);
+    }
+    else{
+      analogWrite(M208_R_PWM, 0);
+      analogWrite(M208_L_PWM, motor_speed_int);
     }
   }
   if(motor_number == 308){
     if(reverse){
-      analogWrite(M308_R_PWM, 0);
-      analogWrite(M308_L_PWM, motor_speed_int);
-    }
-    else{
       analogWrite(M308_L_PWM, 0);
       analogWrite(M308_R_PWM, motor_speed_int);
+    }
+    else{
+      analogWrite(M308_R_PWM, 0);
+      analogWrite(M308_L_PWM, motor_speed_int);
     }
   }
   if(motor_number == 408){
@@ -350,19 +354,19 @@ void loop() {
       if(JS711_X > JS_FWD){
   
         M408_SPEED = scp(JS711_X, 500, 1023, 0, 255);
-        analogWrite(M408_L_PWM, M408_SPEED);
+        send_motor_speed(408, false, M408_SPEED);
    
         M508_SPEED = scp(JS711_X, 500, 1023, 0, 255);
-        analogWrite(M508_L_PWM, M508_SPEED);
+        send_motor_speed(508, false, M508_SPEED);
       
       }
       if(JS711_X < JS_REV){
   
         M408_SPEED = scp(JS711_X, 500, 0, 0, 255);
-        analogWrite(M408_R_PWM, M408_SPEED);
+        send_motor_speed(408, true, M408_SPEED);
 
         M508_SPEED = scp(JS711_X, 500, 0, 0, 255);
-        analogWrite(M508_R_PWM, M508_SPEED);
+        send_motor_speed(508, true, M508_SPEED);
         
       }
       
