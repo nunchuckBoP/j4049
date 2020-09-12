@@ -3,6 +3,11 @@
     Created by CJ Panici, Neechsoft, Inc. August 22, 2020
     Released to Ashley Webb and licensed for lifetime use
 */
+
+//
+// CanSheild link https://github.com/Seeed-Studio/CAN_BUS_Shield
+// This can be used to figure out the can messaging
+//
 #ifndef mController_h
 #define mController_h
 
@@ -195,6 +200,10 @@ class Motor{
             Serial.print(pwm);
             Serial.println();
         }
+<<<<<<< HEAD
 };
 
 #endif
+=======
+}
+>>>>>>> 405ea4557a868a1bd87c4757f6fd670941ad921e
