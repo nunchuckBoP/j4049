@@ -8,6 +8,11 @@
 
 #include "Arduino.h"
 
+struct jspos{
+    int x;
+    int y;
+};
+
 class JoyStick{
     const int id;
     const int x_pin;
@@ -32,11 +37,14 @@ class JoyStick{
             {
                 x = 0;
                 y = 0;
-            }
+            };
         void setup(){
             // nothing really to set up with this
         }
-        int, int loop(){
+        struct jspos loop(){
+
+            // return structure
+            struct jspos jsposition;
 
             // gets the raw values
             x_raw = analogRead(x_pin);
@@ -60,7 +68,10 @@ class JoyStick{
             // calculate the y
             y = y_raw * s + i;
 
-            return x, y;
+            jsposition.x = x;
+            jsposition.y = y;
+
+            return jsposition;
         }
         void print_info(){
             Serial.print("JOYSTICK-");
@@ -72,7 +83,7 @@ class JoyStick{
             Serial.println();
         }
     // end public region  
-}
+};
 
 class Motor{
     const int id;
@@ -101,7 +112,7 @@ class Motor{
                 fwd = true;
                 rev = false;
                 pwm = 0;
-            }
+            };
         void update_dir_pins(){
             // makes sure the pins both can't be on
             if(fwd && !rev){
@@ -137,7 +148,7 @@ class Motor{
             pwm = r_speed * s + i;
 
             // set it out the pwm pin
-            analogWrite(pwm_pin, pwm)
+            analogWrite(pwm_pin, pwm);
 
         }
         bool is_forward(){
@@ -184,4 +195,6 @@ class Motor{
             Serial.print(pwm);
             Serial.println();
         }
-}
+};
+
+#endif
