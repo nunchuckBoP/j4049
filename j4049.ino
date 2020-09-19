@@ -6,97 +6,137 @@
 //              originally designed.
 // */
 
-// left joystick. This controls the forward, reverse
-// action of the vehicle.
-JoyStick jsl(1, A0, A1, 0, 1023, -100, 100);
+// directional constants
+int DIRECTION_STOPPED = 0;
+int DIRECTION_FORWARD = 1;
+int DIRECTION_REVERSE = 2;
 
-// right joystick
-JoyStick jsr(2, A2, A3, 0, 1023, -100, 100);
+// ----------------------------
+// JS705 - LEFT JOYSTICK
+// This now only controls the throttle
+// ----------------------------
+int JS705_X_PIN = A0;
+int JS705_Y_PIN = A1;
+JoyStick js705(705, JS705_X_PIN, JS705_Y_PIN, 0, 1023, -100, 100);
 
-// motor drivers side front
-Motor mdsf(1, 3, 4, 2, 0, 100, 0, 255);
+// ----------------------------
+// JS711 - RIGHT JOYSTICK
+// This now only controls the left/right
+// ----------------------------
+int JS711_X_PIN = A2;
+int JS711_Y_PIN = A3;
+JoyStick js711(711, JS711_X_PIN, JS711_Y_PIN, 0, 1023, -100, 100);
 
-// motor passenger side front
-Motor mpsf(2, 5, 4, 7, 0, 100, 0, 255);
+// ----------------------------
+// M208 DRIVER/FRONT LEFT PINS
+//-----------------------------
+int M208_L_EN = 22;
+int M208_R_EN = 23;
+int M208_L_I = 33;
+int M208_R_I = 32;
+int M208_L_PWM = 2;
+int M208_R_PWM = 3;
+Motor m208(208, M208_L_I, M208_R_I, M208_L_EN, M208_R_EN, M208_L_PWM, M208_R_PWM, 0, 100, 0, 255);
 
-// motor drivers side rear
-Motor mdsr(3, 9, 8, 12, 0, 100, 0, 255);
 
-// motor passenger side rear
-Motor mpsr(4, 10, 11, 13, 0, 100, 0, 255);
+// ----------------------------
+// M308 REAR LEFT PINS
+//-----------------------------
+int M308_L_EN = 24;
+int M308_R_EN = 25;
+int M308_L_I = 31;
+int M308_R_I = 30;
+int M308_L_PWM = 4;
+int M308_R_PWM = 5;
+Motor m308(308, M308_L_I, M308_R_I, M308_L_EN, M308_R_EN, M308_L_PWM, M308_R_PWM, 0, 100, 0, 255);
 
-// local position
+// ----------------------------
+// M408 FRONT RIGHT PINS
+//-----------------------------
+int M408_L_EN = 26;
+int M408_R_EN = 27;
+int M408_L_I = 35;
+int M408_R_I = 34;
+int M408_L_PWM = 6;
+int M408_R_PWM = 7;
+Motor m408(408, M408_L_I, M408_R_I, M408_L_EN, M408_R_EN, M408_L_PWM, M408_R_PWM, 0, 100, 0, 255);
+
+// ----------------------------
+// M508 REAR RIGHT PINS
+//-----------------------------
+int M508_L_EN = 28;
+int M508_R_EN = 29;
+int M508_L_I = 37;
+int M508_R_I = 36;
+int M508_L_PWM = 8;
+int M508_R_PWM = 9;
+Motor m508(508, M508_L_I, M508_R_I, M508_L_EN, M508_R_EN, M508_L_PWM, M508_R_PWM, 0, 100, 0, 255);
+
+// local position variables.
 jspos jsl_pos;
 jspos jsr_pos;
 
 // speed parameters.
 int base_speed = 0;
 float fract_speed = 0.0;
-int turn_db_max = 25;
-int turn_db_min = -25;
 float right_speed = 0;
 float left_speed = 0;
 
-float scp(float raw_input, float rmin, float rmax, float smin, float smax){
-
-  float sn;
-  float sd;
-  float s;
-  float i;
-  float out;
-    
-  // some pre-calculations (for linear)
-  sn = smax - smin;
-  sd = rmax - rmin;
-  s = sn / sd;
-  i = smax - (s * rmax);
-
-  // caluclate the output
-  out = raw_input * s + i;
-
-  return out;    
-}
+// deadband values for turning
+// thresholds
+int turn_db_max = 25;
+int turn_db_min = -25;
 
 void setup(){
 
   // launch the serial port
   Serial.begin(9600);
   
-  jsl.setup();
-  jsr.setup();
+  js705.setup();
+  js711.setup();
   
-  mdsf.setup();
-  mpsf.setup();
-  mdsr.setup();
-  mpsr.setup();
+  m208.setup();
+  m308.setup();
+  m408.setup();
+  m508.setup();
 }
 
 void loop(){
 
   // gets the position of the 
   // two joysticks
-  jsl_pos = jsl.loop();
-  jsr_pos = jsr.loop();
+  jsl_pos = js705.loop();
+  jsr_pos = js711.loop();
 
   // call the motor loop routines.
-  mdsf.loop();
-  mpsf.loop();
-  mdsr.loop();
-  mpsr.loop();
+  m208.loop();
+  m308.loop();
+  m408.loop();
+  m508.loop();
 
   // forward or reverse logic for the 
   // motors
-  if (jsl_pos.y >= 0){
-    mdsf.move_forward();
-    mpsf.move_forward();
-    mdsr.move_forward();
-    mpsr.move_forward();
-  }
-  else{
-    mdsf.move_reverse();
-    mpsf.move_reverse();
-    mdsr.move_reverse();
-    mpsr.move_reverse();
+  if (jsl_pos.y > 1){
+    
+    m208.set_direction(DIRECTION_FORWARD);
+    m308.set_direction(DIRECTION_FORWARD);
+    m408.set_direction(DIRECTION_FORWARD);
+    m508.set_direction(DIRECTION_FORWARD);
+  
+  } else if(jsl_pos.y < -1){
+    
+    m208.set_direction(DIRECTION_REVERSE);
+    m308.set_direction(DIRECTION_REVERSE);
+    m408.set_direction(DIRECTION_REVERSE);
+    m508.set_direction(DIRECTION_REVERSE);
+  
+  } else{
+    
+    m208.set_direction(DIRECTION_STOPPED);
+    m308.set_direction(DIRECTION_STOPPED);
+    m408.set_direction(DIRECTION_STOPPED);
+    m508.set_direction(DIRECTION_STOPPED);
+  
   }
 
   // calculates the base speed.
@@ -122,11 +162,13 @@ void loop(){
     right_speed = base_speed;
   }  
 
-  // sends the speeds to the motors
-  mdsf.set_speed(left_speed);
-  mpsf.set_speed(right_speed);
-  mdsr.set_speed(left_speed);
-  mpsr.set_speed(right_speed);
+  // sends the speeds to the motors. If there is no
+  // turning then all of the speeds should equal the
+  // base speed.
+  m208.set_speed(left_speed);
+  m308.set_speed(right_speed);
+  m408.set_speed(left_speed);
+  m508.set_speed(right_speed);
 
   //Serial.print("base_speed = ");
   //Serial.print(base_speed);
@@ -140,8 +182,9 @@ void loop(){
   //jsl.print_info();
   //jsr.print_info();
 
-  mdsf.print_info();
-  mpsf.print_info();
-  mdsr.print_info();
-  mpsr.print_info();
+  m208.print_info();
+  m308.print_info();
+  m408.print_info();
+  m508.print_info();
+  
 }

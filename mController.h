@@ -100,49 +100,49 @@ class JoyStick{
 
 class Motor{
     const int id;
-    const int pwm_pin;
-    const int fwd_pin;
-    const int rev_pin;
+    const int input_pin1;
+    const int input_pin2;
+    const int fwd_en_pin;
+    const int rev_en_pin;
+    const int fwd_pwm_pin;
+    const int rev_pwm_pin;
     const int r_min;
     const int r_max;
     const int s_min;
     const int s_max;
     float r_speed;
     int pwm;
-    bool fwd;
-    bool rev;
+    int direction;
+    bool enabled;
     public:
-        Motor(int id, int pwm_pin, int fwd_pin, int rev_pin, int r_min, int r_max, int s_min, int s_max):
+        Motor(int id, int input_pin1, int input_pin2, int fwd_en_pin, int rev_en_pin, int fwd_pwm_pin, int rev_pwm_pin, int r_min, int r_max, int s_min, int s_max):
             id(id),
-            pwm_pin(pwm_pin),
-            fwd_pin(fwd_pin),
-            rev_pin(rev_pin),
+            input_pin1(input_pin1),
+            input_pin2(input_pin2),
+            fwd_en_pin(fwd_en_pin),
+            rev_en_pin(rev_en_pin),
+            fwd_pwm_pin(fwd_pwm_pin),
+            rev_pwm_pin(rev_pwm_pin),
             r_min(r_min),
             r_max(r_max),
             s_min(s_min),
             s_max(s_max)
             {
-                fwd = true;
-                rev = false;
+                direction = 0; // 0 = stopped/disabled, 1 = forward, 2 = reverse
                 pwm = 0;
+                enabled = false;
             };
-        void update_dir_pins(){
+        void update_enable_pins(){
             // makes sure the pins both can't be on
-            if(fwd && !rev){
-                digitalWrite(fwd_pin, HIGH);
-                digitalWrite(rev_pin, LOW);
-            }
-            else if(rev && !fwd){
-                digitalWrite(fwd_pin, LOW);
-                digitalWrite(rev_pin, HIGH);
-            }
-            else{
-                // default is forward
-                digitalWrite(fwd_pin, HIGH);
-                digitalWrite(rev_pin, LOW);
+            if(enabled){
+                digitalWrite(fwd_en_pin, HIGH);
+                digitalWrite(rev_en_pin, HIGH);
+            }else{
+                digitalWrite(fwd_en_pin, LOW);
+                digitalWrite(rev_en_pin, LOW);
             }
         }
-        void update_pwm_pin(){
+        void update_pwm_pins(){
             
             // calculate the speed
             // scale the values
@@ -160,53 +160,75 @@ class Motor{
             // caluclate the speed
             pwm = r_speed * s + i;
 
-            // set it out the pwm pin
-            analogWrite(pwm_pin, pwm);
-
+            if(direction == 1){
+                // set it out the pwm pin
+                analogWrite(fwd_pwm_pin, pwm);
+                analogWrite(rev_pwm_pin, 0);
+            }else if(direction == 2){
+                // set it out the pwm pin
+                analogWrite(fwd_pwm_pin, 0);
+                analogWrite(rev_pwm_pin, pwm);
+            }else{
+                analogWrite(fwd_pwm_pin, 0);
+                analogWrite(rev_pwm_pin, 0);
+            }
         }
-        bool is_forward(){
-            return fwd;
+        void enable(){
+            enabled = true;
         }
-        bool is_reverse(){
-            return rev;
-        }
-        void move_forward(){
-            fwd = true;
-            rev = false;
-        }
-        void move_reverse(){
-            fwd = false;
-            rev = true;
+        void disable(){
+            enabled = false;
         }
         void set_speed(int raw_input){
             // sets the raw speed input.
             r_speed = raw_input; 
         }
-        int get_pwm(){
-            return pwm;
+        int get_input(int number){
+            if(number==1){
+                return digitalRead(input_pin1);
+            }else if(number==2){
+                return digitalRead(input_pin2);
+            }else{
+                return 0;
+            }
+        }
+        int set_direction(int a_direction){
+            // 0 = stopped
+            // 1 = forward
+            // 2 = reverse
+
+            // assigns the new direction
+            direction = a_direction;
+
+            if(direction > 0){
+                enable();
+            }else{
+                disable();
+            }
         }
         void setup(){
-            pinMode(fwd_pin, OUTPUT);
-            pinMode(rev_pin, OUTPUT);
+            pinMode(fwd_en_pin, OUTPUT);
+            pinMode(rev_en_pin, OUTPUT);
+            pinMode(input_pin1, INPUT);
+            pinMode(input_pin2, INPUT);
         }
         void loop(){
 
             // update the direction pins
-            update_dir_pins();
+            update_enable_pins();
 
             // updates the pwm pin
-            update_pwm_pin();
+            update_pwm_pins();
         }
         void print_info(){
             Serial.print("MOTOR-");
             Serial.print(id);
-            Serial.print(" FWD:");
-            Serial.print(fwd);
-            Serial.print(" REV:");
-            Serial.print(rev);
+            Serial.print(" enabled:");
+            Serial.print(enabled);
+            Serial.print(" DIRECTION:");
+            Serial.print(direction);
             Serial.print(" PWM:");
-            Serial.print(pwm);
-            Serial.println();
+            Serial.println(pwm);
         }
 };
 #endif
