@@ -23,6 +23,8 @@ class JoyStick{
     const int x_pin;
     const int y_pin;
     int x;
+    int x_last;
+    int y_last;
     int y;
     int x_raw;
     int y_raw;
@@ -79,13 +81,19 @@ class JoyStick{
             return jsposition;
         }
         void print_info(){
-            Serial.print("JOYSTICK-");
-            Serial.print(id);
-            Serial.print(" X:");
-            Serial.print(x);
-            Serial.print(" Y:");
-            Serial.print(y);
-            Serial.println();
+            // should only print the information,
+            // if the value has changed.
+            if(x != x_last || y != y_last){
+              Serial.print("JOYSTICK-");
+              Serial.print(id);
+              Serial.print(" X:");
+              Serial.print(x);
+              Serial.print(" Y:");
+              Serial.print(y);
+              Serial.println();
+            }
+            x_last = x;
+            y_last = y;
         }
     // end public region  
 };
@@ -172,7 +180,7 @@ class Motor{
         }
         void set_speed(int raw_input){
             // sets the raw speed input.
-            r_speed = raw_input;
+            r_speed = raw_input; 
         }
         int get_pwm(){
             return pwm;
@@ -200,10 +208,5 @@ class Motor{
             Serial.print(pwm);
             Serial.println();
         }
-<<<<<<< HEAD
 };
-
 #endif
-=======
-}
->>>>>>> 405ea4557a868a1bd87c4757f6fd670941ad921e
