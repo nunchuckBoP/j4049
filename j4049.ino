@@ -128,20 +128,20 @@ void loop(){
   mdsr.set_speed(left_speed);
   mpsr.set_speed(right_speed);
 
-  Serial.print("base_speed = ");
-  Serial.print(base_speed);
-  Serial.print("  fract_speed = ");
-  Serial.print(fract_speed);
-  Serial.print("  left_speed =");
-  Serial.print(left_speed);
-  Serial.print("  right_speed = ");
-  Serial.println(right_speed);
+  //Serial.print("base_speed = ");
+  //Serial.print(base_speed);
+  //Serial.print("  fract_speed = ");
+  //Serial.print(fract_speed);
+  //Serial.print("  left_speed =");
+  //Serial.print(left_speed);
+  //Serial.print("  right_speed = ");
+  //Serial.println(right_speed);
   
   //jsl.print_info();
   //jsr.print_info();
 
-  //mdsf.print_info();
-  //mpsf.print_info();
-  //mdsr.print_info();
-  //mpsr.print_info();
+  mdsf.print_info();
+  mpsf.print_info();
+  mdsr.print_info();
+  mpsr.print_info();
 }
